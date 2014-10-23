@@ -96,7 +96,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
         setVisited(true);
-        if (fieldValue != null && notNull) {
+        if (fieldValue == null && notNull) {
             throw new JsonSyntaxException("field " + name + " should not be null");
         }
         if (fieldValue != null || !isPrimitive) {
