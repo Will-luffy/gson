@@ -95,8 +95,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @Override void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
-        setVisited(true);
-        if (fieldValue != null && notNull) {
+        if (fieldValue == null && notNull) {
             throw new JsonSyntaxException("field " + name + " should not be null");
         }
         if (fieldValue != null || !isPrimitive) {
@@ -143,7 +142,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     final boolean serialized;
     final boolean deserialized;
     final boolean notNull;
-    boolean visited;
 
     protected BoundField(String name, boolean serialized, boolean deserialized, boolean notNull) {
       this.name = name;
@@ -154,14 +152,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
     abstract void write(JsonWriter writer, Object value) throws IOException, IllegalAccessException;
     abstract void read(JsonReader reader, Object value) throws IOException, IllegalAccessException;
-
-    public boolean isVisited() {
-        return visited;
-    }
-
-    public void setVisited(boolean visited) {
-        this.visited = visited;
-    }
   }
 
   public static final class Adapter<T> extends TypeAdapter<T> {
@@ -195,7 +185,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           }
         }
         for (BoundField field : boundFields.values()) {
-            if (field != null && !field.isVisited() && field.notNull) {
+            if (field != null && field.notNull && !fields.contains(field.name)) {
                 throw new JsonSyntaxException("field " + field.name + " should not be null");
             }
         }
